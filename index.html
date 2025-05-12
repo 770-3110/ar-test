@@ -13,24 +13,19 @@
 
 <body style="margin : 0px; overflow: hidden;">
     <a-scene embedded arjs="debugUIEnabled:false;">
-        <a-entity camera></a-entity>
+        <a-assets>
+            <a-asset-item id="my-model" src="img/more.glb"></a-asset-item>
+        </a-assets>
 
-        <!-- Markerを表示した際の処理を以下に記述する -->
-        <!-- ARマーカーのファイル名をここで指定する -->
         <a-marker type="pattern" url="img/pattern_simple_qrcode.patt">
 
-            <!-- 表示したい画像を src= ～ で指定する -->
-            <!-- 画像の大きさは width と height で設定可能 -->
-            <!-- 画像を表示させる位置は position で設定可能 -->
-            <!-- 画像を水平に表示させる場合は下記の rotation でOK -->
             <a-image width="1" height="1" position="0.2 0.4 0.4" rotation="-90 0 0" src="img/icon.png">
             </a-image>
-            <a-assets>
-            <a-asset-item id="my-model" src="img/more.glb"></a-asset-item>
-            </a-assets>
-            <a-entity gltf-model="#my-model"></a-entity>
+            <a-entity gltf-model="#my-model" position="0 0 0" scale="0.1 0.1 0.1"></a-entity>
 
         </a-marker>
+
+        <a-entity camera></a-entity>
     </a-scene>
 </body>
 
