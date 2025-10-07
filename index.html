@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>3Dモデルビューア（GitHub Pages対応）</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Three.js 最小動作確認</title>
   <style>
     body { margin: 0; overflow: hidden; background-color: #111; }
     canvas { display: block; }
@@ -13,7 +13,6 @@
 <script type="module">
   import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.164.0/build/three.module.js";
   import { OrbitControls } from "https://cdn.jsdelivr.net/npm/three@0.164.0/examples/jsm/controls/OrbitControls.js";
-  import { GLTFLoader } from "https://cdn.jsdelivr.net/npm/three@0.164.0/examples/jsm/loaders/GLTFLoader.js";
 
   // ===== シーン・カメラ・レンダラー =====
   const scene = new THREE.Scene();
@@ -32,30 +31,20 @@
   scene.add(dirLight);
   scene.add(new THREE.AmbientLight(0xffffff, 0.4));
 
-  // ===== モデル読み込み =====
-  const loader = new GLTFLoader();
-  loader.load(
-    "./img/more.glb",
-    (gltf) => {
-      const model = gltf.scene;
-      model.scale.set(1.5, 1.5, 1.5); // モデルサイズ調整
-      scene.add(model);
-    },
-    (xhr) => console.log(`読み込み中: ${(xhr.loaded / xhr.total * 100).toFixed(2)}%`),
-    (err) => console.error("モデル読み込みエラー:", err)
-  );
+  // ===== 立方体 =====
+  const geometry = new THREE.BoxGeometry();
+  const material = new THREE.MeshStandardMaterial({ color: 0x00ffcc });
+  const cube = new THREE.Mesh(geometry, material);
+  scene.add(cube);
 
   // ===== コントロール =====
   const controls = new OrbitControls(camera, renderer.domElement);
   controls.enableDamping = true;
   controls.dampingFactor = 0.05;
-  controls.enableZoom = true;  // ホイール・ピンチでズーム
-  controls.enablePan = true;   // 中ドラッグ / 2本指で平行移動
-  controls.rotateSpeed = 0.7;
-  controls.zoomSpeed = 1.0;
-  controls.panSpeed = 0.8;
+  controls.enableZoom = true;
+  controls.enablePan = true;
 
-  // PC用右クリック/中クリック制御
+  // PC用右クリック・中クリック制御
   renderer.domElement.addEventListener("mousedown", (e) => {
     if (e.button === 2) { controls.enableRotate = true; controls.enablePan = false; }
     if (e.button === 1) { controls.enableRotate = false; controls.enablePan = true; }
@@ -76,7 +65,7 @@
     controls.enablePan = false;
   });
 
-  // ウィンドウリサイズ対応
+  // リサイズ対応
   window.addEventListener("resize", () => {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
@@ -93,3 +82,4 @@
 </script>
 </body>
 </html>
+
