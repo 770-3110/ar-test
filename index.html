@@ -2,35 +2,80 @@
 <html lang="ja">
   <head>
     <meta charset="UTF-8" />
-    <title>Unity風カメラ操作</title>
+    <title>Unity風カメラ操作（右ドラッグ回転・中ドラッグ移動）</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js"></script>
     <style>
       body { margin: 0; overflow: hidden; background: #ECECEC; }
-      html, body, a-scene { width: 100%; height: 100%; }
     </style>
   </head>
   <body>
-    <a-scene background="color: #ECECEC" embedded>
+    <a-scene id="scene" background="color: #ECECEC">
       <!-- 照明 -->
       <a-entity light="type: ambient; intensity: 1.0"></a-entity>
       <a-entity light="type: directional; intensity: 1.2" position="2 4 2"></a-entity>
 
       <!-- モデル -->
       <a-entity
+        id="model"
         gltf-model="url(./img/more.glb)"
         scale="2 2 2"
         position="0 0 0"
       ></a-entity>
 
-      <!-- カメラ（自由移動モード） -->
-      <a-entity
-        id="cameraRig"
-        camera
-        position="0 1.5 5"
-        look-controls="pointerLockEnabled: true; reverseMouseDrag: false;"
-        wasd-controls-enabled="true"
-      ></a-entity>
+      <!-- カメラ -->
+      <a-entity id="cameraRig" position="0 1.5 5">
+        <a-camera id="camera"></a-camera>
+      </a-entity>
     </a-scene>
+
+    <script>
+      const sceneEl = document.querySelector("#scene");
+
+      sceneEl.addEventListener("loaded", () => {
+        const threeCamera = sceneEl.camera;
+        const controls = new THREE.OrbitControls(threeCamera, sceneEl.renderer.domElement);
+
+        // ===== 基本設定 =====
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.1;
+        controls.enableRotate = false;
+        controls.enablePan = false;
+        controls.enableZoom = true;
+        controls.rotateSpeed = 0.4;
+        controls.panSpeed = 0.6;
+        controls.zoomSpeed = 0.5;
+        controls.minDistance = 0.5;
+        controls.maxDistance = 20;
+        controls.target.set(0, 0.5, 0);
+
+        // ===== マウスイベント =====
+        window.addEventListener("mousedown", (e) => {
+          switch (e.button) {
+            case 2: // 右クリックで回転
+              controls.enableRotate = true;
+              controls.enablePan = false;
+              break;
+            case 1: // 中クリック（ホイールクリック）でパン
+              controls.enableRotate = false;
+              controls.enablePan = true;
+              break;
+          }
+        });
+
+        window.addEventListener("mouseup", () => {
+          controls.enableRotate = false;
+          controls.enablePan = false;
+        });
+
+        window.addEventListener("contextmenu", (e) => e.preventDefault()); // 右クリックメニュー無効
+
+        // ===== 描画ループ =====
+        sceneEl.renderer.setAnimationLoop(() => {
+          controls.update();
+        });
+      });
+    </script>
   </body>
 </html>
