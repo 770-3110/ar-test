@@ -2,8 +2,15 @@
 <html lang="ja">
   <head>
     <meta charset="UTF-8">
-    <title>A-Frame モデル表示テスト</title>
+    <title>A-Frame モデル ビューア</title>
+    <!-- A-Frame本体 -->
     <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+    <!-- Orbit Controlsプラグイン -->
+    <script src="https://unpkg.com/aframe-orbit-controls/dist/aframe-orbit-controls.min.js"></script>
+    <style>
+      body { margin: 0; }
+      a-scene { width: 100vw; height: 100vh; }
+    </style>
   </head>
   <body>
     <a-scene background="color: #ECECEC">
@@ -11,19 +18,34 @@
         <a-asset-item id="mymodel" src="img/more.glb"></a-asset-item>
       </a-assets>
 
-      <!-- モデルを中央に配置し、サイズを調整 -->
-      <a-entity gltf-model="#mymodel"
-                position="0 1.2 -2"
+      <!-- モデル -->
+      <a-entity id="model"
+                gltf-model="#mymodel"
+                position="0 1.2 0"
                 rotation="0 45 0"
                 scale="0.5 0.5 0.5">
       </a-entity>
 
-      <!-- 明るいライトを配置 -->
-      <a-entity light="type: ambient; intensity: 1.0; color: #ffffff"></a-entity>
-      <a-entity light="type: directional; intensity: 1.0; color: #ffffff" position="1 3 2"></a-entity>
+      <!-- 明るいライト -->
+      <a-entity light="type: ambient; intensity: 1.0; color: #fff"></a-entity>
+      <a-entity light="type: directional; intensity: 1.0; color: #fff" position="1 3 2"></a-entity>
 
-      <!-- カメラを中央に向ける -->
-      <a-entity camera position="0 1.6 0"></a-entity>
+      <!-- カメラ + Orbitコントロール -->
+      <a-entity
+        id="camera"
+        camera
+        position="0 1.6 3"
+        orbit-controls="
+          target: #model;
+          enableDamping: true;
+          dampingFactor: 0.1;
+          rotateSpeed: 0.3;
+          zoomSpeed: 0.5;
+          minDistance: 1;
+          maxDistance: 10;
+          enablePan: false;
+        ">
+      </a-entity>
     </a-scene>
   </body>
 </html>
