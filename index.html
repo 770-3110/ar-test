@@ -16,12 +16,12 @@
   </head>
   <body>
     <script type="module">
-      // ✅ three.js モジュールを読み込み（古い three.min.js は使わない）
+      // ✅ three.js の完全URLを指定（相対指定ではなくCDN）
       import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js";
       import { OrbitControls } from "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/controls/OrbitControls.js";
       import { GLTFLoader } from "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/loaders/GLTFLoader.js";
 
-      // ===== 基本セットアップ =====
+      // ===== シーン、カメラ、レンダラー =====
       const scene = new THREE.Scene();
       scene.background = new THREE.Color(0x202020);
 
@@ -38,34 +38,26 @@
       scene.add(light);
       scene.add(new THREE.AmbientLight(0xffffff, 0.4));
 
-      // ===== モデルを読み込み =====
+      // ===== モデル読み込み =====
       const loader = new GLTFLoader();
       loader.load(
-        "./img/more.glb", // ファイルパス
+        "./img/more.glb", // ← index.html と同じ階層に img/more.glb がある前提
         (gltf) => {
           const model = gltf.scene;
-          model.scale.set(1.5, 1.5, 1.5); // ← 大きさを調整したい場合はここを変更
+          model.scale.set(1.5, 1.5, 1.5); // モデルの大きさ
           scene.add(model);
         },
-        (xhr) => {
-          console.log(`読み込み中: ${(xhr.loaded / xhr.total) * 100}%`);
-        },
-        (error) => {
-          console.error("モデル読み込みエラー:", error);
-        }
+        (xhr) => console.log(`読み込み中: ${(xhr.loaded / xhr.total) * 100}%`),
+        (err) => console.error("モデル読み込みエラー:", err)
       );
 
-      // ===== カメラ操作コントロール =====
+      // ===== コントロール設定 =====
       const controls = new OrbitControls(camera, renderer.domElement);
       controls.enableDamping = true;
       controls.dampingFactor = 0.05;
-      controls.enablePan = true; // ドラッグで平行移動
-      controls.enableZoom = true; // ホイール・ピンチでズーム
-      controls.rotateSpeed = 0.7;
-      controls.zoomSpeed = 1.0;
-      controls.panSpeed = 0.8;
+      controls.enablePan = true;
+      controls.enableZoom = true;
 
-      // ===== 右クリックで回転・中クリックで平行移動 =====
       let rightMouseDown = false;
       let middleMouseDown = false;
 
@@ -81,9 +73,9 @@
         }
       });
 
-      renderer.domElement.addEventListener("mouseup", (e) => {
-        if (e.button === 2) rightMouseDown = false;
-        if (e.button === 1) middleMouseDown = false;
+      renderer.domElement.addEventListener("mouseup", () => {
+        rightMouseDown = false;
+        middleMouseDown = false;
         controls.enableRotate = false;
         controls.enablePan = false;
       });
@@ -97,15 +89,21 @@
           controls.enablePan = false;
         } else if (e.touches.length === 2) {
           controls.enableRotate = false;
+          controls.enablePan = true;
         }
       });
-
       renderer.domElement.addEventListener("touchend", () => {
+        controls.enableRotate = false;
+        controls.enablePan = false;
       });
 
+      // ===== ウィンドウサイズ対応 =====
+      window.addEventListener("resize", () => {
         camera.aspect = window.innerWidth / window.innerHeight;
         camera.updateProjectionMatrix();
         renderer.setSize(window.innerWidth, window.innerHeight);
+      });
+
       // ===== 描画ループ =====
       function animate() {
         requestAnimationFrame(animate);
@@ -116,10 +114,4 @@
     </script>
   </body>
 </html>
-      });
-
-      // ===== リサイズ対応 =====
-      window.addEventListener("resize", () => {
-        controls.enableRotate = false;
-        controls.enablePan = false;
 
