@@ -2,11 +2,11 @@
 <html lang="ja">
   <head>
     <meta charset="UTF-8" />
-    <title>3Dモデル表示</title>
+    <title>Unity風 3Dビュー操作</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
-    <!-- ✅ A-Frame本体 -->
+    <!-- A-Frame本体 -->
     <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
-    <!-- ✅ OrbitControls拡張 -->
+    <!-- OrbitControls拡張 -->
     <script src="https://cdn.jsdelivr.net/npm/aframe-orbit-controls-component@1.3.3/dist/aframe-orbit-controls-component.min.js"></script>
     <style>
       body { margin: 0; overflow: hidden; background: #ECECEC; }
@@ -14,30 +14,33 @@
   </head>
   <body>
     <a-scene background="color: #ECECEC">
-      <!-- ✅ 照明 -->
+      <!-- 照明 -->
       <a-entity light="type: ambient; intensity: 1.0"></a-entity>
       <a-entity light="type: directional; intensity: 1.2" position="2 4 2"></a-entity>
 
-      <!-- ✅ モデル（位置とスケール調整） -->
+      <!-- モデル -->
       <a-entity
         gltf-model="url(./img/more.glb)"
-        scale="3 3 3"
+        scale="2 2 2"
         position="0 0 0"
       ></a-entity>
 
-      <!-- ✅ カメラ + 視点操作 -->
+      <!-- カメラ + Unity風操作 -->
       <a-entity
         id="cameraRig"
-        position="0 1.5 3"
+        position="0 1.5 5"
         orbit-controls="
           target: 0 0.5 0;
           enableDamping: true;
           dampingFactor: 0.15;
-          rotateSpeed: 0.5;
-          minDistance: 0.5;
-          maxDistance: 10;
+          rotateSpeed: 0.4;
+          zoomSpeed: 0.6;
+          panSpeed: 0.6;
           enableZoom: true;
-          enablePan: false;
+          enablePan: true;   <!-- ✅ ← パンを有効化 -->
+          screenSpacePanning: true;  <!-- ✅ ← カメラを平行移動できるように -->
+          minDistance: 0.5;
+          maxDistance: 15;
         "
       >
         <a-camera></a-camera>
