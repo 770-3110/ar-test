@@ -56,15 +56,11 @@
   controls.panSpeed = 0.8;
 
   // PC用右クリック/中クリック制御
-  let rightMouseDown = false;
-  let middleMouseDown = false;
   renderer.domElement.addEventListener("mousedown", (e) => {
-    if (e.button === 2) { rightMouseDown = true; controls.enableRotate = true; controls.enablePan = false; }
-    if (e.button === 1) { middleMouseDown = true; controls.enableRotate = false; controls.enablePan = true; }
+    if (e.button === 2) { controls.enableRotate = true; controls.enablePan = false; }
+    if (e.button === 1) { controls.enableRotate = false; controls.enablePan = true; }
   });
   renderer.domElement.addEventListener("mouseup", () => {
-    rightMouseDown = false;
-    middleMouseDown = false;
     controls.enableRotate = false;
     controls.enablePan = false;
   });
@@ -87,14 +83,13 @@
     renderer.setSize(window.innerWidth, window.innerHeight);
   });
 
-  // ===== アニメーションループ =====
+  // ===== 描画ループ =====
   function animate() {
     requestAnimationFrame(animate);
     controls.update();
     renderer.render(scene, camera);
   }
   animate();
-
 </script>
 </body>
 </html>
