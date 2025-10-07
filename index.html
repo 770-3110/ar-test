@@ -2,48 +2,28 @@
 <html lang="ja">
   <head>
     <meta charset="UTF-8">
-    <title>A-Frame 3D Viewer</title>
-    <!-- A-Frame 本体 -->
+    <title>A-Frame モデル表示テスト</title>
     <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
-    <!-- Orbit Controls プラグイン -->
-    <script src="https://unpkg.com/aframe-orbit-controls/dist/aframe-orbit-controls.min.js"></script>
-    <style>
-      body { margin: 0; }
-      a-scene { width: 100vw; height: 100vh; }
-    </style>
   </head>
   <body>
-    <a-scene>
-      <!-- アセットの読み込み -->
+    <a-scene background="color: #ECECEC">
       <a-assets>
         <a-asset-item id="mymodel" src="img/more.glb"></a-asset-item>
       </a-assets>
 
-      <!-- 照明 -->
-      <a-entity light="type: ambient; intensity: 0.8"></a-entity>
-      <a-entity light="type: directional; intensity: 0.6" position="1 2 1"></a-entity>
-
-      <!-- 3Dモデル -->
-      <a-entity id="model" 
-                gltf-model="#mymodel" 
-                position="0 0 0" 
-                scale="1 1 1">
+      <!-- モデルを中央に配置し、サイズを調整 -->
+      <a-entity gltf-model="#mymodel"
+                position="0 1.2 -2"
+                rotation="0 45 0"
+                scale="0.5 0.5 0.5">
       </a-entity>
 
-      <!-- カメラ + スマホタッチ操作対応 -->
-      <a-entity 
-        camera
-        orbit-controls="target: #model;
-                        enableDamping: true;
-                        dampingFactor: 0.125;
-                        rotateSpeed:0.3;
-                        minDistance:0.5;
-                        maxDistance:10"
-        position="0 1.6 3">
-      </a-entity>
+      <!-- 明るいライトを配置 -->
+      <a-entity light="type: ambient; intensity: 1.0; color: #ffffff"></a-entity>
+      <a-entity light="type: directional; intensity: 1.0; color: #ffffff" position="1 3 2"></a-entity>
 
-      <!-- 床（目安用、不要なら削除してOK） -->
-      <a-plane rotation="-90 0 0" width="10" height="10" color="#ddd"></a-plane>
+      <!-- カメラを中央に向ける -->
+      <a-entity camera position="0 1.6 0"></a-entity>
     </a-scene>
   </body>
 </html>
