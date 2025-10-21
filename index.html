@@ -3,21 +3,25 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>3Dモデルビューア（スマホ対応）</title>
+    <title>3Dモデルビューア（VR風）</title>
     <!-- A-Frame本体 -->
     <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+
+    <!-- Orbit Controls（カメラ操作拡張） -->
+    <script src="https://cdn.jsdelivr.net/gh/supermedium/aframe-extras@6.1.1/dist/aframe-extras.controls.min.js"></script>
+
     <style>
       body {
         margin: 0;
         overflow: hidden;
-        background-color: #000;
+        background-color: #fff;
       }
       #loading {
         position: fixed;
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
-        color: white;
+        color: black;
         font-family: sans-serif;
         font-size: 18px;
       }
@@ -28,22 +32,18 @@
     <div id="loading">モデルを読み込み中...</div>
 
     <a-scene
-      background="color: #000"
+      background="color: #ffffff"
       vr-mode-ui="enabled: false"
       loading-screen="enabled: false"
       renderer="colorManagement: true; physicallyCorrectLights: true"
     >
-      <!-- カメラとコントロール -->
-      <a-entity
-        id="cameraRig"
-        position="0 1.6 3"
-        camera
-        look-controls="touchEnabled: true; mouseEnabled: true"
-        orbit-controls="autoRotate: false; target: 0 1 0; enableZoom: true; enablePan: true;"
-      ></a-entity>
+      <!-- カメラ（固定） -->
+      <a-entity id="cameraRig" position="0 1.6 3">
+        <a-camera></a-camera>
+      </a-entity>
 
       <!-- 環境光と方向光 -->
-      <a-entity light="type: ambient; intensity: 1; color: #ffffff"></a-entity>
+      <a-entity light="type: ambient; intensity: 1.0; color: #ffffff"></a-entity>
       <a-entity light="type: directional; intensity: 0.8; position: 2 4 3"></a-entity>
 
       <!-- モデル -->
@@ -53,6 +53,7 @@
         position="0 0 0"
         scale="1 1 1"
         rotation="0 180 0"
+        orbit-controls="target: 0 1 0; enableZoom: true; enablePan: false; autoRotate: false;"
       ></a-entity>
     </a-scene>
 
