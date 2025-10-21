@@ -1,91 +1,70 @@
 <!DOCTYPE html>
 <html lang="ja">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>3Dモデルビューア（スマホ対応）</title>
-  <style>
-    body { margin: 0; overflow: hidden; background-color: #000; }
-    canvas { display: block; touch-action: none; }
-    #loading {
-      position: fixed;
-      top: 50%; left: 50%;
-      transform: translate(-50%, -50%);
-      color: white;
-      font-family: sans-serif;
-      font-size: 18px;
-    }
-  </style>
-</head>
-<body>
-  <div id="loading">モデルを読み込み中...</div>
-
-  <script type="module">
-    import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.164.0/build/three.module.js";
-    import { OrbitControls } from "https://cdn.jsdelivr.net/npm/three@0.164.0/examples/jsm/controls/OrbitControls.js";
-    import { GLTFLoader } from "https://cdn.jsdelivr.net/npm/three@0.164.0/examples/jsm/loaders/GLTFLoader.js";
-
-    // === シーン・カメラ・レンダラー ===
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 100);
-    camera.position.set(0, 1.5, 3);
-
-    const renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setPixelRatio(window.devicePixelRatio);
-    document.body.appendChild(renderer.domElement);
-
-    // === 環境光・方向光 ===
-    const ambient = new THREE.AmbientLight(0xffffff, 0.8);
-    scene.add(ambient);
-    const dirLight = new THREE.DirectionalLight(0xffffff, 1.0);
-    dirLight.position.set(3, 5, 2);
-    scene.add(dirLight);
-
-    // === モデル読み込み ===
-    const loader = new GLTFLoader();
-    loader.load(
-      "./img/more.glb", // ← あなたのモデルパス
-      (gltf) => {
-        const model = gltf.scene;
-        model.scale.set(1, 1, 1);
-        model.position.set(0, 0, 0);
-        scene.add(model);
-
-        document.getElementById("loading").style.display = "none";
-      },
-      (xhr) => {
-        const percent = xhr.total ? (xhr.loaded / xhr.total) * 100 : 0;
-        document.getElementById("loading").textContent = `読み込み中... ${percent.toFixed(1)}%`;
-      },
-      (error) => {
-        console.error("モデル読み込み失敗:", error);
-        document.getElementById("loading").textContent = "モデルを読み込めませんでした。";
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>3Dモデルビューア（スマホ対応）</title>
+    <!-- A-Frame本体 -->
+    <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+    <style>
+      body {
+        margin: 0;
+        overflow: hidden;
+        background-color: #000;
       }
-    );
+      #loading {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        color: white;
+        font-family: sans-serif;
+        font-size: 18px;
+      }
+    </style>
+  </head>
 
-    // === カメラ操作（スマホ＆PC両対応） ===
-    const controls = new OrbitControls(camera, renderer.domElement);
-    controls.enableDamping = true;
-    controls.dampingFactor = 0.05;
-    controls.enableZoom = true;   // ピンチズーム対応
-    controls.enablePan = false;   // パン無効（誤操作防止）
-    controls.target.set(0, 1, 0);
+  <body>
+    <div id="loading">モデルを読み込み中...</div>
 
-    // === ウィンドウサイズ変更対応 ===
-    window.addEventListener("resize", () => {
-      camera.aspect = window.innerWidth / window.innerHeight;
-      camera.updateProjectionMatrix();
-      renderer.setSize(window.innerWidth, window.innerHeight);
-    });
+    <a-scene
+      background="color: #000"
+      vr-mode-ui="enabled: false"
+      loading-screen="enabled: false"
+      renderer="colorManagement: true; physicallyCorrectLights: true"
+    >
+      <!-- カメラとコントロール -->
+      <a-entity
+        id="cameraRig"
+        position="0 1.6 3"
+        camera
+        look-controls="touchEnabled: true; mouseEnabled: true"
+        orbit-controls="autoRotate: false; target: 0 1 0; enableZoom: true; enablePan: true;"
+      ></a-entity>
 
-    // === 描画ループ ===
-    function animate() {
-      requestAnimationFrame(animate);
-      controls.update();
-      renderer.render(scene, camera);
-    }
-    animate();
-  </script>
-</body>
+      <!-- 環境光と方向光 -->
+      <a-entity light="type: ambient; intensity: 1; color: #ffffff"></a-entity>
+      <a-entity light="type: directional; intensity: 0.8; position: 2 4 3"></a-entity>
+
+      <!-- モデル -->
+      <a-entity
+        id="model"
+        gltf-model="url(img/more.glb)"
+        position="0 0 0"
+        scale="1 1 1"
+        rotation="0 180 0"
+      ></a-entity>
+    </a-scene>
+
+    <script>
+      const model = document.querySelector("#model");
+      model.addEventListener("model-loaded", () => {
+        document.getElementById("loading").style.display = "none";
+      });
+      model.addEventListener("model-error", (e) => {
+        document.getElementById("loading").innerText = "モデルを読み込めませんでした";
+        console.error("モデル読み込みエラー:", e.detail);
+      });
+    </script>
+  </body>
 </html>
