@@ -23,9 +23,7 @@
 
       // シーン
       const scene = new THREE.Scene();
-
-      // 背景色を白に
-      scene.background = new THREE.Color(0xffffff);
+      scene.background = new THREE.Color(0xffffff); // 背景を白に
 
       // カメラ
       const camera = new THREE.PerspectiveCamera(
@@ -42,7 +40,7 @@
       renderer.outputEncoding = THREE.sRGBEncoding;
       document.body.appendChild(renderer.domElement);
 
-      // 環境光と方向光
+      // 光源
       const ambient = new THREE.AmbientLight(0xffffff, 1.0);
       scene.add(ambient);
 
@@ -64,12 +62,14 @@
         (error) => console.error(error)
       );
 
-      // カメラ固定のため、デバイスの向きを無視
-      // → OrbitControls もカメラ回転をロック
+      // カメラ固定（ユーザー操作無効）
       const controls = new OrbitControls(camera, renderer.domElement);
       controls.enablePan = false;
-      controls.enableRotate = false; // カメラの回転を禁止
+      controls.enableRotate = false;
       controls.enableZoom = false;
+
+      // デバイスの向きイベントを無視（スマホでもカメラが動かないように）
+      window.removeEventListener("deviceorientation", () => {});
 
       // アニメーションループ
       function animate() {
@@ -78,16 +78,12 @@
       }
       animate();
 
-      // ウィンドウリサイズ対応
+      // ウィンドウサイズ対応
       window.addEventListener("resize", () => {
         camera.aspect = window.innerWidth / window.innerHeight;
         camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
       });
-
-        window.removeEventListener("deviceorientation", () => {});
-      }
-</html>    </script>
+    </script>
   </body>
-      // 📱 デバイスの向きを無効化（スマホでもカメラが動かないように）
-      if (window.DeviceOrientationEvent) {
-
+</html>
