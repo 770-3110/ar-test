@@ -6,46 +6,55 @@
   <title>3Dモデル表示テスト</title>
   <style>
     body { margin: 0; background: white; overflow: hidden; }
-    #loading { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); }
+    #loading {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      color: black;
+      font-family: sans-serif;
+    }
   </style>
 </head>
 <body>
-  <div id="loading">モデル読み込み中…</div>
+  <div id="loading">モデル読み込み中...</div>
 
   <script type="module">
     import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.164.0/build/three.module.js";
     import { GLTFLoader } from "https://cdn.jsdelivr.net/npm/three@0.164.0/examples/jsm/loaders/GLTFLoader.js";
 
+    const loadingText = document.getElementById("loading");
+
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
     const renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setClearColor(0xffffff, 1); // 背景を白に
+    renderer.setClearColor(0xffffff, 1);
     document.body.appendChild(renderer.domElement);
 
-    // 照明
-    const light = new THREE.HemisphereLight(0xffffff, 0x444444, 1.2);
-    scene.add(light);
+    // ライト
+    const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 1.2);
+    scene.add(hemiLight);
+    const dirLight = new THREE.DirectionalLight(0xffffff, 1);
+    dirLight.position.set(1, 1, 1);
+    scene.add(dirLight);
 
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-    directionalLight.position.set(1, 1, 1);
-    scene.add(directionalLight);
-
-    // モデル読み込み
+    // GLBモデルを読み込み
     const loader = new GLTFLoader();
     loader.load(
-      "./img/more.glb",
+      "./img/more.glb", // ✅ GitHub PagesでもOK（相対パスで指定）
       (gltf) => {
         const model = gltf.scene;
         model.position.set(0, -1, 0);
         model.scale.set(1, 1, 1);
         scene.add(model);
-        document.getElementById("loading").style.display = "none";
+        loadingText.style.display = "none";
       },
-      undefined,
+      (xhr) => {
+        loadingText.textContent = `モデル読み込み中... ${(xhr.loaded / xhr.total * 100).toFixed(0)}%`;
+      },
       (error) => {
         console.error("モデル読み込み失敗:", error);
-        document.getElementById("loading").textContent = "モデルの読み込みに失敗しました。";
+        loadingText.textContent = "モデル読み込みに失敗しました";
       }
     );
 
