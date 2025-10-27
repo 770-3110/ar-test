@@ -11,17 +11,17 @@
 </head>
 <body>
 
-<!-- Three.js 非モジュール版 -->
+<!-- Three.js 本体（非モジュール版） -->
 <script src="https://cdn.jsdelivr.net/npm/three@0.164.0/build/three.min.js"></script>
 <!-- GLTFLoader 非モジュール版 -->
 <script src="https://cdn.jsdelivr.net/npm/three@0.164.0/examples/js/loaders/GLTFLoader.js"></script>
 
+<!-- 自分のスクリプトは Three.js の後に書く -->
 <script>
-  // シーン
+  // THREE が定義された状態でここから書く
   const scene = new THREE.Scene();
   scene.background = new THREE.Color(0xffffff);
 
-  // カメラ
   const camera = new THREE.PerspectiveCamera(
     60,
     window.innerWidth / window.innerHeight,
@@ -30,13 +30,11 @@
   );
   camera.position.set(0, 1.5, 3);
 
-  // レンダラー
   const renderer = new THREE.WebGLRenderer({ antialias: true });
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.outputEncoding = THREE.sRGBEncoding;
   document.body.appendChild(renderer.domElement);
 
-  // 光源
   const ambientLight = new THREE.AmbientLight(0xffffff, 1.0);
   scene.add(ambientLight);
 
@@ -47,7 +45,7 @@
   // 3Dモデル読み込み
   const loader = new THREE.GLTFLoader();
   loader.load(
-    "img/more.glb", // imgフォルダ内のモデルパス
+    "img/more.glb", // img フォルダ内のモデル
     function(gltf) {
       const model = gltf.scene;
       model.position.set(0, 0, 0);
@@ -60,14 +58,14 @@
     }
   );
 
-  // アニメーションループ
+  // 描画ループ
   function animate() {
     requestAnimationFrame(animate);
     renderer.render(scene, camera);
   }
   animate();
 
-  // ウィンドウリサイズ対応
+  // リサイズ対応
   window.addEventListener("resize", function() {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
