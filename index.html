@@ -1,72 +1,101 @@
 <!DOCTYPE html>
 <html lang="ja">
-<head>
-  <meta charset="UTF-8" />
-  <title>3Dモデル固定表示（ブラウザ完全対応）</title>
-  <style>
-    body { margin: 0; overflow: hidden; background: #ffffff; }
-    canvas { display: block; }
-  </style>
-</head>
-<body>
-  <script type="module">
-    // ✅ Three.js を CDN から直接インポート（絶対URL指定）
-    import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.164.0/build/three.module.js";
-    import { GLTFLoader } from "https://cdn.jsdelivr.net/npm/three@0.164.0/examples/jsm/loaders/GLTFLoader.js";
-
-    // シーン作成
-    const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0xffffff);
-
-    // カメラ設定
-    const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 100);
-    camera.position.set(0, 1, 3);
-
-    // レンダラー
-    const renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    document.body.appendChild(renderer.domElement);
-
-    // 照明
-    const light1 = new THREE.HemisphereLight(0xffffff, 0x444444, 1.5);
-    light1.position.set(0, 1, 0);
-    scene.add(light1);
-
-    const light2 = new THREE.DirectionalLight(0xffffff, 1.2);
-    light2.position.set(3, 10, 5);
-    scene.add(light2);
-
-    // ✅ GLTFLoader で自分のモデルを読み込む
-    const loader = new GLTFLoader();
-    loader.load(
-      "./img/more.glb", // ← 自分の more.glb を指定
-      function (gltf) {
-        const model = gltf.scene;
-        model.position.set(0, 0, 0);
-        model.rotation.y = Math.PI; // 正面向き
-        model.scale.set(1, 1, 1);
-        scene.add(model);
-
-        // モデルを回転させて表示確認できるように
-        function animate() {
-          requestAnimationFrame(animate);
-          model.rotation.y += 0.01;
-          renderer.render(scene, camera);
-        }
-        animate();
-      },
-      undefined,
-      function (error) {
-        console.error("モデル読み込みエラー:", error);
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3Dモデル表示テスト</title>
+    <style>
+      body { margin: 0; overflow: hidden; background-color: #ffffff; }
+      canvas { display: block; }
+      #status {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        background: rgba(255,255,255,0.9);
+        padding: 6px 12px;
+        border-radius: 4px;
+        font-family: sans-serif;
+        color: #333;
+        z-index: 10;
       }
-    );
+    </style>
+  </head>
+  <body>
+    <div id="status">モデルを読み込み中…</div>
 
-    // ウィンドウサイズ変更対応
-    window.addEventListener("resize", () => {
-      camera.aspect = window.innerWidth / window.innerHeight;
-      camera.updateProjectionMatrix();
+    <script type="module">
+      import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.164.0/build/three.module.js";
+      import { GLTFLoader } from "https://cdn.jsdelivr.net/npm/three@0.164.0/examples/jsm/loaders/GLTFLoader.js";
+
+      const status = document.getElementById("status");
+
+      // シーン作成
+      const scene = new THREE.Scene();
+      scene.background = new THREE.Color(0xffffff);
+
+      // カメラ設定
+      const camera = new THREE.PerspectiveCamera(
+        60,
+        window.innerWidth / window.innerHeight,
+        0.1,
+        100
+      );
+      camera.position.set(0, 1, 3);
+
+      // レンダラー
+      const renderer = new THREE.WebGLRenderer({ antialias: true });
       renderer.setSize(window.innerWidth, window.innerHeight);
-    });
-  </script>
-</body>
+      document.body.appendChild(renderer.domElement);
+
+      // 照明
+      const light = new THREE.HemisphereLight(0xffffff, 0x444444, 1.5);
+      light.position.set(0, 1, 0);
+      scene.add(light);
+
+      const dirLight = new THREE.DirectionalLight(0xffffff, 1.0);
+      dirLight.position.set(3, 5, 2);
+      scene.add(dirLight);
+
+      // GLTFLoader
+      const loader = new GLTFLoader();
+
+      loader.load(
+        "./img/more.glb",  // 👈 imgフォルダ内のモデル
+        (gltf) => {
+          const model = gltf.scene;
+          model.position.set(0, 0, 0);
+          model.scale.set(1, 1, 1);
+          model.rotation.y = Math.PI;
+          scene.add(model);
+
+          status.style.display = "none";
+
+          // モデルをゆっくり回転して確認
+          function animate() {
+            requestAnimationFrame(animate);
+            model.rotation.y += 0.01;
+            renderer.render(scene, camera);
+          }
+          animate();
+        },
+        (xhr) => {
+          if (xhr.total) {
+            const percent = (xhr.loaded / xhr.total) * 100;
+            status.textContent = `モデルを読み込み中… ${percent.toFixed(0)}%`;
+          }
+        },
+        (error) => {
+          status.textContent = "モデル読み込みに失敗しました。";
+          console.error("モデル読み込みエラー:", error);
+        }
+      );
+
+      // ウィンドウサイズ変更対応
+      window.addEventListener("resize", () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+      });
+    </script>
+  </body>
 </html>
