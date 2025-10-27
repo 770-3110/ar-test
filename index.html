@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>3Dモデル表示テスト</title>
+  <title>3Dモデル最小サンプル</title>
   <style>
     body { margin: 0; overflow: hidden; background-color: #ffffff; }
     canvas { display: block; }
@@ -36,60 +36,52 @@
   scene.background = new THREE.Color(0xffffff);
 
   // カメラ
-  const camera = new THREE.PerspectiveCamera(
-    60,
-    window.innerWidth / window.innerHeight,
-    0.1,
-    1000
-  );
-  camera.position.set(0, 1.5, 3); // カメラを正面に配置
+  const camera = new THREE.PerspectiveCamera(60, window.innerWidth/window.innerHeight, 0.1, 1000);
+  camera.position.set(0, 1.5, 3);
 
   // レンダラー
-  const renderer = new THREE.WebGLRenderer({ antialias: true });
+  const renderer = new THREE.WebGLRenderer({antialias:true});
   renderer.setSize(window.innerWidth, window.innerHeight);
-  renderer.outputEncoding = THREE.sRGBEncoding;
   document.body.appendChild(renderer.domElement);
 
   // 光源
-  const ambientLight = new THREE.AmbientLight(0xffffff, 1.0);
-  scene.add(ambientLight);
-  const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-  directionalLight.position.set(3, 5, 2);
-  scene.add(directionalLight);
+  scene.add(new THREE.AmbientLight(0xffffff,1.0));
+  const dirLight = new THREE.DirectionalLight(0xffffff,0.8);
+  dirLight.position.set(3,5,2);
+  scene.add(dirLight);
 
-  // 3Dモデル読み込み
+  // GLTFLoader で小さい外部モデルを読み込む（サンプル用）
   const loader = new THREE.GLTFLoader();
   loader.load(
-    "img/more.glb", // 正しい相対パス
-    function(gltf) {
+    "https://rawcdn.githack.com/KhronosGroup/glTF-Sample-Models/master/2.0/DamagedHelmet/glTF/DamagedHelmet.gltf",
+    function(gltf){
       const model = gltf.scene;
-      model.position.set(0, 0, 0);
-      model.rotation.y = Math.PI; // 必要に応じて正面向きに調整
+      model.position.set(0,0,0);
+      model.rotation.y = Math.PI; // 正面向き
       model.scale.set(1,1,1);
       scene.add(model);
       status.style.display = 'none'; // 読み込み完了
     },
-    function(xhr) {
-      // 読み込み進行状況を表示
+    function(xhr){
       const percent = (xhr.loaded / xhr.total * 100).toFixed(0);
       status.textContent = `モデル読み込み中… ${percent}%`;
     },
-    function(error) {
+    function(err){
       status.textContent = "モデル読み込みエラー";
-      console.error("モデル読み込みエラー:", error);
+      console.error("モデル読み込みエラー:", err);
     }
   );
 
   // 描画ループ
-  function animate() {
+  function animate(){
     requestAnimationFrame(animate);
-    renderer.render(scene, camera);
+    renderer.render(scene,camera);
   }
   animate();
 
-  // リサイズ対応
-  window.addEventListener("resize", function() {
-    camera.aspect = window.innerWidth / window.innerHeight;
+  // ウィンドウリサイズ対応
+  window.addEventListener("resize",function(){
+    camera.aspect = window.innerWidth/window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
   });
