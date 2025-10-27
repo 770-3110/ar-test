@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>中央固定3Dモデル</title>
+  <title>3Dモデル中央固定</title>
   <style>
     body { margin: 0; overflow: hidden; background-color: #ffffff; }
     canvas { display: block; }
@@ -11,8 +11,9 @@
 </head>
 <body>
 
-<!-- Three.js と GLTFLoader の非モジュール版 -->
+<!-- Three.js 非モジュール版 -->
 <script src="https://cdn.jsdelivr.net/npm/three@0.164.0/build/three.min.js"></script>
+<!-- GLTFLoader 非モジュール版 -->
 <script src="https://cdn.jsdelivr.net/npm/three@0.164.0/examples/js/loaders/GLTFLoader.js"></script>
 
 <script>
@@ -20,7 +21,7 @@
   const scene = new THREE.Scene();
   scene.background = new THREE.Color(0xffffff);
 
-  // カメラ（固定）
+  // カメラ
   const camera = new THREE.PerspectiveCamera(
     60,
     window.innerWidth / window.innerHeight,
@@ -46,7 +47,7 @@
   // 3Dモデル読み込み
   const loader = new THREE.GLTFLoader();
   loader.load(
-    "img/more.glb", // 相対パスを正確に
+    "img/more.glb", // imgフォルダ内のモデルパス
     function(gltf) {
       const model = gltf.scene;
       model.position.set(0, 0, 0);
@@ -59,14 +60,14 @@
     }
   );
 
-  // 描画ループ
+  // アニメーションループ
   function animate() {
     requestAnimationFrame(animate);
     renderer.render(scene, camera);
   }
   animate();
 
-  // リサイズ対応
+  // ウィンドウリサイズ対応
   window.addEventListener("resize", function() {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
