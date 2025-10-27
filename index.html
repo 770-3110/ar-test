@@ -2,100 +2,56 @@
 <html lang="ja">
   <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>3Dモデル表示テスト</title>
-    <style>
-      body { margin: 0; overflow: hidden; background-color: #ffffff; }
-      canvas { display: block; }
-      #status {
-        position: absolute;
-        top: 10px;
-        left: 10px;
-        background: rgba(255,255,255,0.9);
-        padding: 6px 12px;
-        border-radius: 4px;
-        font-family: sans-serif;
-        color: #333;
-        z-index: 10;
-      }
-    </style>
-  </head>
-  <body>
-    <div id="status">モデルを読み込み中…</div>
-
+    <title>AR Test</title>
     <script type="module">
       import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.164.0/build/three.module.js";
-      import { GLTFLoader } from "https://cdn.jsdelivr.net/npm/three@0.164.0/examples/jsm/loaders/GLTFLoader.js";
+      import { ARButton } from "https://cdn.jsdelivr.net/npm/three@0.164.0/examples/jsm/webxr/ARButton.js";
 
-      const status = document.getElementById("status");
+      let camera, scene, renderer, cube;
 
-      // シーン作成
-      const scene = new THREE.Scene();
-      scene.background = new THREE.Color(0xffffff);
+      init();
+      animate();
 
-      // カメラ設定
-      const camera = new THREE.PerspectiveCamera(
-        60,
-        window.innerWidth / window.innerHeight,
-        0.1,
-        100
-      );
-      camera.position.set(0, 1, 3);
+      function init() {
+        scene = new THREE.Scene();
 
-      // レンダラー
-      const renderer = new THREE.WebGLRenderer({ antialias: true });
-      renderer.setSize(window.innerWidth, window.innerHeight);
-      document.body.appendChild(renderer.domElement);
+        camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.01, 20);
 
-      // 照明
-      const light = new THREE.HemisphereLight(0xffffff, 0x444444, 1.5);
-      light.position.set(0, 1, 0);
-      scene.add(light);
+        // Renderer設定
+        renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.xr.enabled = true;
+        document.body.appendChild(renderer.domElement);
 
-      const dirLight = new THREE.DirectionalLight(0xffffff, 1.0);
-      dirLight.position.set(3, 5, 2);
-      scene.add(dirLight);
+        // 立方体
+        const geometry = new THREE.BoxGeometry(0.2, 0.2, 0.2);
+        const material = new THREE.MeshNormalMaterial();
+        cube = new THREE.Mesh(geometry, material);
+        cube.position.set(0, 0, -0.5);
+        scene.add(cube);
 
-      // GLTFLoader
-      const loader = new GLTFLoader();
+        // ARボタン
+        document.body.appendChild(ARButton.createButton(renderer));
 
-      loader.load(
-        "./img/more.glb",  // 👈 imgフォルダ内のモデル
-        (gltf) => {
-          const model = gltf.scene;
-          model.position.set(0, 0, 0);
-          model.scale.set(1, 1, 1);
-          model.rotation.y = Math.PI;
-          scene.add(model);
+        window.addEventListener('resize', onWindowResize);
+      }
 
-          status.style.display = "none";
-
-          // モデルをゆっくり回転して確認
-          function animate() {
-            requestAnimationFrame(animate);
-            model.rotation.y += 0.01;
-            renderer.render(scene, camera);
-          }
-          animate();
-        },
-        (xhr) => {
-          if (xhr.total) {
-            const percent = (xhr.loaded / xhr.total) * 100;
-            status.textContent = `モデルを読み込み中… ${percent.toFixed(0)}%`;
-          }
-        },
-        (error) => {
-          status.textContent = "モデル読み込みに失敗しました。";
-          console.error("モデル読み込みエラー:", error);
-        }
-      );
-
-      // ウィンドウサイズ変更対応
-      window.addEventListener("resize", () => {
+      function onWindowResize() {
         camera.aspect = window.innerWidth / window.innerHeight;
         camera.updateProjectionMatrix();
         renderer.setSize(window.innerWidth, window.innerHeight);
-      });
+      }
+
+      function animate() {
+        renderer.setAnimationLoop(render);
+      }
+
+      function render() {
+        cube.rotation.x += 0.01;
+        cube.rotation.y += 0.02;
+        renderer.render(scene, camera);
+      }
     </script>
-  </body>
+  </head>
+  <body style="margin:0; overflow:hidden;"></body>
 </html>
